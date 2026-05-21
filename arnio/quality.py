@@ -1244,7 +1244,13 @@ def _markdown_cell(value: Any) -> str:
     if value is None:
         return "-"
     text = str(_clean_scalar(value))
-    return text.replace("\\", "\\\\").replace("|", "\\|").replace("\n", "<br>")
+    return (
+        text.replace("\\", "\\\\")
+        .replace("|", "\\|")
+        .replace("\r\n", "<br>")
+        .replace("\r", "<br>")
+        .replace("\n", "<br>")
+    )
 
 
 def _compare_column_profiles(
