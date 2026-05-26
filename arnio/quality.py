@@ -8,6 +8,7 @@ from __future__ import annotations
 import html
 import json
 import math
+import os
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import Any
@@ -403,6 +404,14 @@ class DataQualityReport:
         In notebook environments, ``DataQualityReport`` will render a compact dashboard
         automatically via ``_repr_html_``.
         """
+        if file_path is not None:
+            if isinstance(file_path, bool) or not isinstance(
+                file_path, (str, bytes, os.PathLike)
+            ):
+                raise TypeError(
+                    f"file_path must be a string, bytes, or os.PathLike object, got {type(file_path).__name__}"
+                )
+
         max_suggestions = self._validate_max_suggestions(max_suggestions)
         html_out = self._to_html_dashboard(
             full_document=True,
