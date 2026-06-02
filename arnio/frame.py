@@ -489,6 +489,48 @@ class ArFrame:
                 ],
             }
 
+    def to_csv(
+        self,
+        path,
+        *,
+        delimiter: str = ",",
+        write_header: bool = True,
+        encoding: str = "utf-8",
+        **kwargs,
+    ) -> None:
+        """Write the ArFrame to a CSV file.
+
+        This is a convenience wrapper around :func:`arnio.write_csv`.
+
+        Parameters
+        ----------
+        path : str or file-like
+            Destination file path.
+        delimiter : str, default ","
+            Field delimiter character.
+        write_header : bool, default True
+            Whether to write the column header row.
+        encoding : str, default "utf-8"
+            File encoding. Currently only utf-8 is natively supported by the backend.
+        **kwargs
+            Additional arguments passed to :func:`arnio.write_csv` such as `line_terminator`.
+
+        Examples
+        --------
+        >>> frame.to_csv("output.csv")
+        """
+        from .io import write_csv
+
+        # write_csv currently doesn't accept encoding, so we drop it from kwargs
+        # but keep it in the signature for pandas compatibility as requested in #1981
+        write_csv(
+            self,
+            path,
+            delimiter=delimiter,
+            write_header=write_header,
+            **kwargs,
+        )
+
     def select_columns(self, columns: list[str]) -> ArFrame:
         """Return a new ArFrame with only the selected columns.
 
