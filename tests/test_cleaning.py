@@ -1989,6 +1989,42 @@ class TestAttrsPreservation:
             frame._attrs["meta"]["version"] == 1
         ), f"{op_name} shared _attrs by reference instead of deep copying"
 
+    def test_drop_duplicates_zero_columns_preserves_attrs(self):
+        """drop_duplicates zero-column early return must propagate attrs."""
+        import pandas as pd
+
+        from arnio._core import _Frame
+
+        frame = ar.from_pandas(pd.DataFrame({"a": [1, 2, 3]}))
+        # Build a genuine zero-column frame with rows intact
+        frame._frame = _Frame.from_dict({}, {}, 3)
+        frame._attrs = {"source": "crm", "meta": {"version": 1}}
+        assert frame.shape == (3, 0)
+
+        result = ar.drop_duplicates(frame)
+
+        assert result._attrs == {
+            "source": "crm",
+            "meta": {"version": 1},
+        }, "drop_duplicates zero-column path dropped _attrs"
+
+    def test_drop_duplicates_zero_columns_attrs_deep_copy_isolated(self):
+        """drop_duplicates zero-column result attrs must be a deep copy."""
+        import pandas as pd
+
+        from arnio._core import _Frame
+
+        frame = ar.from_pandas(pd.DataFrame({"a": [1, 2, 3]}))
+        frame._frame = _Frame.from_dict({}, {}, 3)
+        frame._attrs = {"source": "crm", "meta": {"version": 1}}
+
+        result = ar.drop_duplicates(frame)
+        result._attrs["meta"]["version"] = 999
+
+        assert (
+            frame._attrs["meta"]["version"] == 1
+        ), "drop_duplicates zero-column path shared _attrs by reference instead of deep copying"
+
     def test_empty_attrs_not_propagated(self):
         """When source frame has no attrs, result attrs should also be empty."""
         frame = ar.from_pandas(

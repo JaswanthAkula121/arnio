@@ -564,7 +564,7 @@ def drop_duplicates(
     if frame.shape[1] == 0:
         from ._core import _Frame
 
-        return ArFrame(_Frame.from_dict({}, {}, frame.shape[0]))
+        return _wrap(_Frame.from_dict({}, {}, frame.shape[0]), frame)
     result = _drop_duplicates(frame._frame, subset=subset, keep=keep_arg)
     return _wrap(result, frame)
 
